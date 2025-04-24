@@ -4,9 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="+ extract unique authors">
-      <change afterPath="$PROJECT_DIR$/reddit_cascade_processing/count_author_contributions.py" afterDir="false" />
+    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="+ count author subreddits">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reddit_cascade_processing/count_author_contributions.py" beforeDir="false" afterPath="$PROJECT_DIR$/reddit_cascade_processing/count_author_contributions.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,7 +86,7 @@
       <option name="presentableId" value="Default" />
       <updated>1745488370947</updated>
       <workItem from="1745488371823" duration="991000" />
-      <workItem from="1745490160482" duration="7761000" />
+      <workItem from="1745490160482" duration="9594000" />
     </task>
     <task id="LOCAL-00001" summary="+ initial commit">
       <option name="closed" value="true" />
@@ -128,11 +128,30 @@
       <option name="project" value="LOCAL" />
       <updated>1745495290111</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="+ count author subreddits">
+      <option name="closed" value="true" />
+      <created>1745528873422</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1745528873422</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="+ initial commit" />
@@ -140,6 +159,7 @@
     <MESSAGE value="* modernized timestamp" />
     <MESSAGE value="+ export cascades" />
     <MESSAGE value="+ extract unique authors" />
-    <option name="LAST_COMMIT_MESSAGE" value="+ extract unique authors" />
+    <MESSAGE value="+ count author subreddits" />
+    <option name="LAST_COMMIT_MESSAGE" value="+ count author subreddits" />
   </component>
 </project>

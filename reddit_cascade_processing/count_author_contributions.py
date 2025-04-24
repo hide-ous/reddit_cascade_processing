@@ -27,6 +27,13 @@ def load_authors(filepath):
     with open(filepath, "r", encoding="utf-8") as f:
         return set(line.strip().lower() for line in f if line.strip())
 
+# Replacement for lambda-in-defaultdict (needs to be top-level for multiprocessing)
+def nested_dict():
+    return defaultdict(dict)
+
+def deeper_nested_dict():
+    return defaultdict(lambda: defaultdict(int))
+
 def process_file(args):
     filepath, authors = args
     author_data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
@@ -56,13 +63,15 @@ def process_file(args):
                         if author not in authors or not subreddit or created_utc is None:
                             continue
 
-                        year = datetime.utcfromtimestamp(int(created_utc)).year
-                        author_data[author][str(year)][subreddit] += 1
+                        year = str(datetime.utcfromtimestamp(int(created_utc)).year)
+                        author_data[author][year][subreddit] += 1
                     except Exception as e:
                         logging.debug(f"Skipping line due to error: {e}")
     except Exception as e:
         logging.warning(f"Failed to process {filepath}: {e}")
-    return author_data
+
+    # Convert to regular dicts before sending back to avoid pickling issues
+    return json.loads(json.dumps(author_data))
 
 def merge_results(results):
     merged = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
