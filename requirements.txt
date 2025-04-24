@@ -2,3 +2,6 @@ pip
 python-dotenv
 ruff
 -e .
+
+zstandard~=0.23.0
+tqdm~=4.67.1

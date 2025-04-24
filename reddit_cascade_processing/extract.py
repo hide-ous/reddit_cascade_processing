@@ -149,4 +149,5 @@ def main():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
+    # example usage: python -u reddit_cascade_processing\extract.py -f author id link_id created_utc -o .\data\interim\conspiracy_comments.jsonl .\data\external\subreddits24\conspiracy_comments.zst
     main()

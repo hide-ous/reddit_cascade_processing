@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="+ parse input file">
+    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="* modernized timestamp">
+      <change afterPath="$PROJECT_DIR$/reddit_cascade_processing/filter_and_format.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/reddit_cascade_processing/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/reddit_cascade_processing/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reddit_cascade_processing/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/reddit_cascade_processing/extract.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +52,7 @@
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "C:/Users/matti/PycharmProjects/reddit_cascade_processing",
+    "last_opened_file_path": "C:/Users/matti/PycharmProjects/reddit_cascade_processing/data/external",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -61,7 +63,11 @@
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\matti\PycharmProjects\reddit_cascade_processing\data\external" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\matti\PycharmProjects\reddit_cascade_processing\data\external" />
       <recent name="C:\Users\matti\PycharmProjects\PythonProject" />
     </key>
   </component>
@@ -82,7 +88,7 @@
       <option name="presentableId" value="Default" />
       <updated>1745488370947</updated>
       <workItem from="1745488371823" duration="991000" />
-      <workItem from="1745490160482" duration="1214000" />
+      <workItem from="1745490160482" duration="3832000" />
     </task>
     <task id="LOCAL-00001" summary="+ initial commit">
       <option name="closed" value="true" />
@@ -100,7 +106,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745491306716</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="* modernized timestamp">
+      <option name="closed" value="true" />
+      <created>1745491402122</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1745491402122</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -109,6 +123,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="+ initial commit" />
     <MESSAGE value="+ parse input file" />
-    <option name="LAST_COMMIT_MESSAGE" value="+ parse input file" />
+    <MESSAGE value="* modernized timestamp" />
+    <option name="LAST_COMMIT_MESSAGE" value="* modernized timestamp" />
   </component>
 </project>
