@@ -112,4 +112,5 @@ def main():
     logging.info(f"Output written to {args.output}")
 
 if __name__ == "__main__":
+    # Example usage: python -u .\reddit_cascade_processing\filter_and_format.py -b .\data\external\botnames.txt --dedup_authors --min_len=5 --max_len=100 -o .\data\processed\conspiracy_cascades.jsonl .\data\interim\conspiracy_comments.jsonl .\data\interim\conspiracy_submissions.jsonl
     main()
