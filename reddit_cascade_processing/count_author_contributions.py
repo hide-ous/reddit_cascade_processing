@@ -36,7 +36,7 @@ def deeper_nested_dict():
 
 def process_file(args):
     filepath, authors = args
-    logging.debug(f"Parsing {filepath}")
+    logging.info(f"Parsing {filepath}")
     author_data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
     try:
