@@ -36,6 +36,7 @@ def deeper_nested_dict():
 
 def process_file(args):
     filepath, authors = args
+    logging.debug(f"Parsing {filepath}")
     author_data = defaultdict(lambda: defaultdict(lambda: defaultdict(int)))
 
     try:
@@ -127,4 +128,5 @@ def main():
     logging.info("Done.")
 
 if __name__ == "__main__":
+    # python -u reddit_cascade_processing/count_author_contributions.py data/interim/authors.txt data/external/Reddit/zst_drops/ --workers=30 -o=data/interim/author_subreddits.jsonl
     main()
