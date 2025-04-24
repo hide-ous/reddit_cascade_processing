@@ -83,7 +83,8 @@ def filter_comments(batch):
             if FILTER_CONFIG['subreddit'] and comment.get('subreddit') != FILTER_CONFIG['subreddit']:
                 continue
 
-            comment_date = datetime.datetime.utcfromtimestamp(int(comment['created_utc'])).date()
+            comment_date = datetime.datetime.fromtimestamp(int(comment['created_utc']), datetime.UTC).date()
+            # comment_date = datetime.datetime.utcfromtimestamp(int(comment['created_utc'])).date()
             if FILTER_CONFIG['date'] and comment_date != FILTER_CONFIG['date']:
                 continue
             start, end = FILTER_CONFIG['date_range']

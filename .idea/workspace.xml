@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="+ initial commit">
-      <change afterPath="$PROJECT_DIR$/reddit_cascade_processing/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/reddit_cascade_processing.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/reddit_cascade_processing.iml" afterDir="false" />
+    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="+ parse input file">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reddit_cascade_processing/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/reddit_cascade_processing/main.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +82,7 @@
       <option name="presentableId" value="Default" />
       <updated>1745488370947</updated>
       <workItem from="1745488371823" duration="991000" />
-      <workItem from="1745490160482" duration="811000" />
+      <workItem from="1745490160482" duration="1214000" />
     </task>
     <task id="LOCAL-00001" summary="+ initial commit">
       <option name="closed" value="true" />
@@ -93,7 +92,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745490305142</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="+ parse input file">
+      <option name="closed" value="true" />
+      <created>1745491306716</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1745491306716</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -101,6 +108,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="+ initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="+ initial commit" />
+    <MESSAGE value="+ parse input file" />
+    <option name="LAST_COMMIT_MESSAGE" value="+ parse input file" />
   </component>
 </project>
