@@ -40,7 +40,7 @@ def process_file(args):
 
     try:
         with open(filepath, 'rb') as f:
-            dctx = zstd.ZstdDecompressor()
+            dctx = zstd.ZstdDecompressor(max_window_size=2 ** 31)
             reader = dctx.stream_reader(f)
             buffer = ''
             while True:
