@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="* noise-corrected disparity filter" />
+    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="* noise-corrected disparity filter">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -83,7 +85,7 @@
       <option name="presentableId" value="Default" />
       <updated>1745488370947</updated>
       <workItem from="1745488371823" duration="991000" />
-      <workItem from="1745490160482" duration="25205000" />
+      <workItem from="1745490160482" duration="26161000" />
     </task>
     <task id="LOCAL-00001" summary="+ initial commit">
       <option name="closed" value="true" />
@@ -197,7 +199,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745588805023</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="* noise-corrected disparity filter">
+      <option name="closed" value="true" />
+      <created>1745588850889</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1745588850889</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

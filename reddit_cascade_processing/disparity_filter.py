@@ -4,181 +4,76 @@ import scipy.stats as st
 import argparse
 from tqdm import tqdm
 from multiprocessing import Pool, cpu_count
+import math
+import time
 
-def calculate_ncdf_alpha(weight, total_weight, degree):
-    """Calculates the alpha value for the Noise Corrected Disparity Filter."""
+def calculate_ncdf_alpha_numpy(weight, total_weight, degree):
     if degree < 2 or total_weight == 0:
         return 1.0
     p = weight / total_weight
     return 1 - (1 - p) ** (degree - 1)
 
-def process_node_ncdf(node, edgelist_df, alpha_threshold):
-    """
-    Applies the Noise Corrected Disparity Filter to the edges connected to a single node.
-
-    Args:
-        node (str): The node being processed.
-        edgelist_df (pd.DataFrame): DataFrame with columns 'source', 'target', and 'weight'.
-        alpha_threshold (float): Significance level for the filter.
-
-    Returns:
-        list: A list of tuples representing the backbone edges connected to the node
-              (sorted node pair to avoid duplicates).
-    """
+def process_node_batch_numpy(node_batch, edgelist_df, alpha_threshold, filter_type):
     backbone_edges = set()
-    neighbors_df = edgelist_df[(edgelist_df['source'] == node) | (edgelist_df['target'] == node)].copy()
-    if neighbors_df.empty:
-        return list(backbone_edges)
+    for node in node_batch:
+        neighbors_df = edgelist_df[(edgelist_df['source'] == node) | (edgelist_df['target'] == node)]
+        if neighbors_df.empty:
+            continue
 
-    # Calculate degree and total weight for the node
-    degree = len(neighbors_df)
-    total_weight = neighbors_df['weight'].sum()
+        weights = neighbors_df['weight'].to_numpy()
+        degree = len(weights)
+        total_weight = np.sum(weights)
 
-    if total_weight == 0 or degree < 2:
-        return list(backbone_edges)
+        if total_weight == 0 or degree < 2:
+            continue
 
-    # Calculate NCDF alpha for each edge
-    neighbors_df['alpha_ncdf'] = neighbors_df.apply(
-        lambda row: calculate_ncdf_alpha(row['weight'], total_weight, degree), axis=1
-    )
+        if filter_type == 'disparity':
+            probabilities = weights / total_weight
+            alpha_values = probabilities ** (degree - 1)
+            backbone_indices = np.where(alpha_values < alpha_threshold)[0]
+        elif filter_type == 'ncdf':
+            probabilities = weights / total_weight
+            alpha_values = calculate_ncdf_alpha_numpy(weights, total_weight, degree)
+            backbone_indices = np.where(alpha_values < alpha_threshold)[0]
+        else:
+            raise ValueError(f"Unknown filter type: {filter_type}")
 
-    # Identify backbone edges based on alpha threshold
-    backbone_neighbors = neighbors_df[neighbors_df['alpha_ncdf'] < alpha_threshold]
-
-    # Add backbone edges (as sorted tuples)
-    for index, row in backbone_neighbors.iterrows():
-        u = row['source']
-        v = row['target']
-        weight = row['weight']
-        sorted_edge = tuple(sorted((u, v)))
-        backbone_edges.add((sorted_edge[0], sorted_edge[1], weight))
+        for index in backbone_indices:
+            row = neighbors_df.iloc[index]
+            u = row['source']
+            v = row['target']
+            weight = row['weight']
+            sorted_edge = tuple(sorted((u, v)))
+            backbone_edges.add((sorted_edge[0], sorted_edge[1], weight))
 
     return list(backbone_edges)
 
-def disparity_filter_ncdf_parallel(edgelist_df, alpha_threshold=0.05, num_processes=None):
-    """
-    Applies the Noise Corrected Disparity Filter to a weighted edgelist in parallel.
-
-    Args:
-        edgelist_df (pd.DataFrame): DataFrame with columns 'source', 'target', and 'weight'.
-        alpha_threshold (float, optional): Significance level for the filter. Defaults to 0.05.
-        num_processes (int, optional): Number of processes to use for parallelization.
-                                       Defaults to the number of CPU cores.
-
-    Returns:
-        pd.DataFrame: DataFrame containing the unique backbone edges.
-    """
+def disparity_filter_parallel_batched_numpy(edgelist_df, alpha_threshold=0.05, num_processes=None, batch_size=100, filter_type='disparity'):
     unique_nodes = pd.concat([edgelist_df['source'], edgelist_df['target']]).unique()
+    num_nodes = len(unique_nodes)
     if num_processes is None:
         num_processes = cpu_count()
 
-    with Pool(processes=num_processes) as pool:
-        results = pool.starmap(process_node_ncdf, [(node, edgelist_df, alpha_threshold) for node in unique_nodes])
+    node_batches = [unique_nodes[i:i + batch_size] for i in range(0, num_nodes, batch_size)]
 
-    # Flatten the list of sets and create the backbone DataFrame
     backbone_edges = set()
-    for sublist in results:
-        for edge in sublist:
-            backbone_edges.add(edge)
+    with Pool(processes=num_processes) as pool:
+        results = list(tqdm(pool.starmap(process_node_batch_numpy, [(batch, edgelist_df, alpha_threshold, filter_type) for batch in node_batches]), total=len(node_batches), desc="Processing batches"))
+        for sublist in results:
+            for edge in sublist:
+                backbone_edges.add(edge)
 
     backbone_list = [{'source': u, 'target': v, 'weight': weight} for u, v, weight in backbone_edges]
     backbone_df = pd.DataFrame(backbone_list)
 
     return backbone_df
-def process_node(node, edgelist_df, alpha_threshold):
-    """
-    Applies the disparity filter to the edges connected to a single node (for undirected networks).
 
-    Args:
-        node (str): The node being processed.
-        edgelist_df (pd.DataFrame): DataFrame with columns 'source', 'target', and 'weight'.
-        alpha_threshold (float): Significance level for the filter.
-
-    Returns:
-        list: A list of tuples representing the backbone edges connected to the node
-              (sorted node pair to avoid duplicates).
-    """
-    backbone_edges = set()  # Use a set to automatically handle duplicates
-    neighbors_df = edgelist_df[(edgelist_df['source'] == node) | (edgelist_df['target'] == node)].copy()
-    if neighbors_df.empty:
-        return list(backbone_edges)
-
-    # Calculate degree and total weight for the node
-    degree = len(neighbors_df)
-    total_weight = neighbors_df['weight'].sum()
-
-    if total_weight == 0 or degree < 2:
-        return list(backbone_edges)
-
-    # Calculate alpha for each edge connected to the node
-    neighbors_df['alpha'] = neighbors_df.apply(
-        lambda row: (row['weight'] / total_weight) ** (degree - 1), axis=1
-    )
-
-    # Identify backbone edges based on alpha threshold
-    backbone_neighbors = neighbors_df[neighbors_df['alpha'] < alpha_threshold]
-
-    # Add backbone edges (as sorted tuples)
-    for index, row in backbone_neighbors.iterrows():
-        u = row['source']
-        v = row['target']
-        weight = row['weight']
-        # Ensure consistent representation for undirected edges
-        sorted_edge = tuple(sorted((u, v)))
-        backbone_edges.add((sorted_edge[0], sorted_edge[1], weight))
-
-    return list(backbone_edges)
-
-def disparity_filter_parallel(edgelist_df, alpha_threshold=0.05, num_processes=None):
-    """
-    Applies the disparity filter to a weighted edgelist in parallel (for undirected networks).
-
-    Args:
-        edgelist_df (pd.DataFrame): DataFrame with columns 'source', 'target', and 'weight'.
-        alpha_threshold (float, optional): Significance level for the filter. Defaults to 0.05.
-        num_processes (int, optional): Number of processes to use for parallelization.
-                                       Defaults to the number of CPU cores.
-
-    Returns:
-        pd.DataFrame: DataFrame containing the unique backbone edges.
-    """
-    unique_nodes = pd.concat([edgelist_df['source'], edgelist_df['target']]).unique()
-    if num_processes is None:
-        num_processes = cpu_count()
-
-    with Pool(processes=num_processes) as pool:
-        results = pool.starmap(process_node, [(node, edgelist_df, alpha_threshold) for node in unique_nodes])
-
-    # Flatten the list of sets and create the backbone DataFrame
-    backbone_edges = set()
-    for sublist in results:
-        for edge in sublist:
-            backbone_edges.add(edge)
-
-    backbone_list = [{'source': u, 'target': v, 'weight': weight} for u, v, weight in backbone_edges]
-    backbone_df = pd.DataFrame(backbone_list)
-
-    return backbone_df
-def compute_backbone_network(csv_path, alpha=0.05, num_processes=None, filter_type='ncdf'):
-    """
-    Reads a weighted edgelist from a CSV file and computes the backbone network using the specified filter.
-
-    Args:
-        csv_path (str): Path to the CSV file containing the weighted edgelist (source, target, weight columns).
-        alpha (float, optional): Significance level for the disparity filter. Defaults to 0.05.
-        num_processes (int, optional): Number of processes to use for parallelization.
-                                       Defaults to the number of CPU cores.
-        filter_type (str, optional): The type of filtering to apply ('disparity' or 'ncdf').
-                                     Defaults to 'disparity'.
-
-    Returns:
-        pandas.DataFrame: DataFrame representing the backbone network with 'source', 'target', and 'weight' columns.
-                          Returns an empty DataFrame if the input CSV is invalid or empty.
-    """
+def compute_backbone_network_numpy(csv_path, alpha=0.05, num_processes=None, filter_type='disparity', batch_size=100):
+    start_time = time.time()
     try:
         edgelist_df = pd.read_csv(csv_path)
         if not all(col in edgelist_df.columns for col in ['source', 'target', 'weight']):
-            print("Error: CSV file must contain columns 'source', 'target', and 'weight'.")
+            print("Error: CSV file must contain 'source', 'target', and 'weight' columns.")
             return pd.DataFrame()
         if edgelist_df.empty:
             print("Warning: Input CSV file is empty.")
@@ -190,47 +85,50 @@ def compute_backbone_network(csv_path, alpha=0.05, num_processes=None, filter_ty
         print(f"An error occurred while reading the CSV file: {e}")
         return pd.DataFrame()
 
-    if filter_type == 'disparity':
-        backbone_df = disparity_filter_parallel(edgelist_df.copy(), alpha_threshold=alpha, num_processes=num_processes)
-    elif filter_type == 'ncdf':
-        backbone_df = disparity_filter_ncdf_parallel(edgelist_df.copy(), alpha_threshold=alpha, num_processes=num_processes)
-    else:
-        print(f"Error: Unknown filter type '{filter_type}'. Choose 'disparity' or 'ncdf'.")
-        return pd.DataFrame()
+    backbone_df = disparity_filter_parallel_batched_numpy(
+        edgelist_df.copy(),
+        alpha_threshold=alpha,
+        num_processes=num_processes,
+        batch_size=batch_size,
+        filter_type=filter_type
+    )
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"\nBackbone computation finished in {elapsed_time:.2f} seconds.")
 
     return backbone_df
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Compute the backbone network from a symmetric and undirected weighted edgelist using the parallel disparity or noise corrected disparity filter.")
-    parser.add_argument("input_file", help="Path to the input CSV file containing the weighted edgelist (source, target, weight columns).")
-    parser.add_argument("output_file", help="Path to the output CSV file to save the backbone network.")
-    parser.add_argument("--alpha", type=float, default=0.05, help="Significance level (alpha) for the filter (default: 0.05).")
-    parser.add_argument("--processes", type=int, default=None, help=f"Number of processes to use for parallelization (default: {cpu_count()}).")
-    parser.add_argument("--filter", type=str, default='disparity', choices=['disparity', 'ncdf'], help="Type of filtering to apply ('disparity' or 'ncdf') (default: disparity).")
+    parser = argparse.ArgumentParser(description="Compute backbone network with batched parallel processing (NumPy optimized) with timer and progress bar.")
+    parser.add_argument("input_file", help="Path to input CSV.")
+    parser.add_argument("output_file", help="Path to output CSV.")
+    parser.add_argument("--alpha", type=float, default=0.05, help="Alpha threshold.")
+    parser.add_argument("--processes", type=int, default=None, help="Number of processes.")
+    parser.add_argument("--filter", type=str, default='disparity', choices=['disparity', 'ncdf'], help="Filter type.")
+    parser.add_argument("--batch_size", type=int, default=100, help="Number of nodes per batch.")
 
     args = parser.parse_args()
 
-    input_csv_file = args.input_file
-    output_csv_file = args.output_file
-    alpha_value = args.alpha
-    num_processes_value = args.processes
-    filter_type_value = args.filter
-
-    backbone = compute_backbone_network(input_csv_file, alpha=alpha_value, num_processes=num_processes_value, filter_type=filter_type_value)
+    backbone = compute_backbone_network_numpy(
+        args.input_file,
+        alpha=args.alpha,
+        num_processes=args.processes,
+        filter_type=args.filter,
+        batch_size=args.batch_size
+    )
 
     if not backbone.empty:
-        print(f"\nBackbone Network (using {filter_type_value} filter):")
+        print(f"\nBackbone Network (using {args.filter} filter):")
         print(backbone)
-
-        num_backbone_edges = len(backbone)
-        backbone_nodes = pd.concat([backbone['source'], backbone['target']]).nunique()
-        print(f"\nNumber of edges in the backbone network: {num_backbone_edges}")
-        print(f"Number of nodes in the backbone network: {backbone_nodes}")
-
+        num_edges = len(backbone)
+        num_nodes = pd.concat([backbone['source'], backbone['target']]).nunique()
+        print(f"\nNumber of edges: {num_edges}")
+        print(f"Number of nodes: {num_nodes}")
         try:
-            backbone.to_csv(output_csv_file, index=False)
-            print(f"\nBackbone network saved to: {output_csv_file}")
+            backbone.to_csv(args.output_file, index=False)
+            print(f"\nBackbone saved to {args.output_file}")
         except Exception as e:
-            print(f"Error saving the backbone network to CSV: {e}")
+            print(f"Error saving to CSV: {e}")
     else:
-        print("\nNo backbone network could be computed.")
+        print("\nNo backbone network computed.")
