@@ -12,7 +12,7 @@ Process Reddit archives to format information cascade data.
 1. Extract only some fields from a subreddit's archive
     - input: a subreddit's archive, e.g., `science_submissions.zst`, such as those from this URL: https://academictorrents.com/details/1614740ac8c94505e4ecb9d88be8bed7b6afddd4 (all subreddits, 2005 to 2024 included)
     - output: `science_submissions.jsonl` 
-      - format `{"author": "shaunc", "id": "mp0o", "link_id": null, "created_utc": 1161180895}`
+      - format `{"author": "asd", "id": "123", "link_id": null, "created_utc": 1161180895}`
     ```shell
     python -u reddit_cascade_processing\extract.py -f author id link_id created_utc -o .\data\interim\science_comments.jsonl .\data\external\subreddits24\science_comments.zst
     ```
