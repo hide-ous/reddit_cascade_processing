@@ -159,7 +159,7 @@ def disparity_filter_parallel(edgelist_df, alpha_threshold=0.05, num_processes=N
     backbone_df = pd.DataFrame(backbone_list)
 
     return backbone_df
-def compute_backbone_network(csv_path, alpha=0.05, num_processes=None, filter_type='disparity'):
+def compute_backbone_network(csv_path, alpha=0.05, num_processes=None, filter_type='ncdf'):
     """
     Reads a weighted edgelist from a CSV file and computes the backbone network using the specified filter.
 
