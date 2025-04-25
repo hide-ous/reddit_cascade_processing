@@ -3,9 +3,12 @@ import json
 import logging
 import csv
 from collections import defaultdict, Counter
+from datetime import datetime, timezone
+
 from tqdm import tqdm
-from itertools import combinations
+from itertools import combinations, islice
 import networkx as nx
+from multiprocessing import Pool, cpu_count
 
 
 def parse_args():
@@ -15,10 +18,10 @@ def parse_args():
     parser.add_argument("--min_cascade_count", type=int, required=True, help="Minimum number of cascades a user must appear in to be included.")
     parser.add_argument("--min_cascade_size", type=int, default=5, help="Minimum cascade size.")
     parser.add_argument("--max_cascade_size", type=int, default=100, help="Maximum cascade size.")
-    parser.add_argument("--min_subreddits", type=int, default=5, help="Minimum number of subreddits a user must appear in.")
+    parser.add_argument("--min_subreddits", type=int, default=1, help="Minimum number of subreddits a user must appear in.")
     parser.add_argument("--year_start", type=int, default=None, help="Optional: Filter subreddit counts from this year.")
     parser.add_argument("--year_end", type=int, default=None, help="Optional: Filter subreddit counts up to this year.")
-    parser.add_argument("--exclude_subreddits", help="Optional: Path to a file with subreddits to exclude (newline-separated).")
+    parser.add_argument("--exclude_subreddits", nargs="*", help="Optional: Subreddits to exclude.")
     parser.add_argument("--filtered_cascades_out", required=True, help="Output path for filtered cascades JSONL file.")
     parser.add_argument("--edge_list_out", required=True, help="Output path for CSV edge list.")
     parser.add_argument("--loglevel", default="INFO", help="Logging level (DEBUG, INFO, etc).")
@@ -32,26 +35,102 @@ def setup_logging(level):
     )
 
 
-def load_exclude_list(path):
-    if not path:
-        return set()
-    with open(path, "r", encoding="utf-8") as f:
-        return set(line.strip().lower() for line in f if line.strip())
+def load_exclude_list(subreddits):
+    return set(sub.lower() for sub in subreddits) if subreddits else set()
 
 
-def load_cascades(path, min_size, max_size):
-    cascades = []
+def process_conversations(path, start_timestamp=None, end_timestamp=None):
+    """
+    Processes conversations from a file, applying date filtering.
+
+    Args:
+        path (str): Path to the JSONL file.
+        start_timestamp (float, optional): Start timestamp for filtering. Defaults to None.
+        end_timestamp (float, optional): End timestamp for filtering. Defaults to None.
+
+    Returns:
+        list: A list of (conversation_id, filtered_user_time_list) tuples.
+        Counter: A Counter object containing user counts from the filtered conversations.
+    """
+    processed_cascades = []
     user_counts = Counter()
     with open(path, "r", encoding="utf-8") as f:
-        for line in tqdm(f, desc="Loading cascades"):
+        for line in tqdm(f, desc="Processing conversations"):
             obj = json.loads(line)
             for conv_id, user_time_list in obj.items():
-                users = [user for user, _ in user_time_list]
-                for user in set(users):
-                    user_counts[user] += 1
-                cascades.append((conv_id, user_time_list))
-    return cascades, user_counts
+                if start_timestamp or end_timestamp:
+                    filtered_user_time_list = [(user, time) for user, time in user_time_list
+                                                if (start_timestamp is None or time >= start_timestamp) and
+                                                   (end_timestamp is None or time <= end_timestamp)]
+                    if not filtered_user_time_list:
+                        continue
+                    processed_cascades.append((conv_id, filtered_user_time_list))
+                    for user, _ in filtered_user_time_list:
+                        user_counts[user] += 1
+                else:
+                    processed_cascades.append((conv_id, user_time_list))
+                    for user, _ in user_time_list:
+                        user_counts[user] += 1
+    return processed_cascades, user_counts
 
+
+def process_conversations(path, start_timestamp=None, end_timestamp=None):
+    """
+    Processes conversations from a file, applying UTC date filtering.
+
+    Args:
+        path (str): Path to the JSONL file.
+        start_timestamp (float, optional): Start UTC timestamp for filtering. Defaults to None.
+        end_timestamp (float, optional): End UTC timestamp for filtering. Defaults to None.
+
+    Returns:
+        list: A list of (conversation_id, filtered_user_time_list) tuples.
+        Counter: A Counter object containing user counts from the filtered conversations.
+    """
+    processed_cascades = []
+    user_counts = Counter()
+    with open(path, "r", encoding="utf-8") as f:
+        for line in tqdm(f, desc="Processing conversations"):
+            obj = json.loads(line)
+            for conv_id, user_time_list in obj.items():
+                if start_timestamp or end_timestamp:
+                    filtered_user_time_list = [(user, time) for user, time in user_time_list
+                                                if (start_timestamp is None or time >= start_timestamp) and
+                                                   (end_timestamp is None or time <= end_timestamp)]
+                    if not filtered_user_time_list:
+                        continue
+                    processed_cascades.append((conv_id, filtered_user_time_list))
+                    for user, _ in filtered_user_time_list:
+                        user_counts[user] += 1
+                else:
+                    processed_cascades.append((conv_id, user_time_list))
+                    for user, _ in user_time_list:
+                        user_counts[user] += 1
+    return processed_cascades, user_counts
+
+def load_cascades(path, min_size, max_size, start_date=None, end_date=None):
+    """
+    Loads cascades from a file, optionally filtering by UTC date and returning user counts
+    based on the same filter.
+
+    Args:
+        path (str): Path to the JSONL file.
+        min_size (int): Minimum size of the cascade (not currently used in the provided code).
+        max_size (int): Maximum size of the cascade (not currently used in the provided code).
+        start_date (datetime.datetime, optional): Start UTC date for filtering. Defaults to None.
+        end_date (datetime.datetime, optional): End UTC date for filtering. Defaults to None.
+
+    Returns:
+        list: A list of (conversation_id, user_time_list) tuples for cascades within the size limits and UTC date range.
+        Counter: A Counter object containing counts of users who participated in conversations
+                 within the specified UTC date range.
+    """
+    start_timestamp = datetime.timestamp(start_date.astimezone(timezone.utc)) if start_date else None
+    end_timestamp = datetime.timestamp(end_date.astimezone(timezone.utc)) if end_date else None
+
+    filtered_cascades, filtered_user_counts = process_conversations(path, start_timestamp, end_timestamp)
+
+    return filtered_cascades, filtered_user_counts
 
 def filter_cascades(cascades, valid_users, min_size, max_size):
     filtered = []
@@ -82,14 +161,37 @@ def load_subreddit_counts(path, valid_users, year_start, year_end, exclude_subre
     return {user: subs for user, subs in user_subreddits.items() if len(subs) >= min_subreddits}
 
 
-def build_edge_list(user_subreddits):
-    users = list(user_subreddits.keys())
+def chunked_iterable(iterable, size):
+    iterator = iter(iterable)
+    while True:
+        chunk = list(islice(iterator, size))
+        if not chunk:
+            break
+        yield chunk
+
+
+def compute_edge_batch(args):
+    user_subreddits, pair_batch = args
     edges = defaultdict(int)
-    for u1, u2 in tqdm(combinations(users, 2), desc="Computing edges", total=(len(users) * (len(users) - 1)) // 2):
+    for u1, u2 in pair_batch:
         shared = user_subreddits[u1] & user_subreddits[u2]
         if shared:
             edges[(u1, u2)] = len(shared)
     return edges
+
+
+def build_edge_list(user_subreddits):
+    users = list(user_subreddits.keys())
+    user_pairs = combinations(users, 2)
+    all_edges = defaultdict(int)
+    with Pool(cpu_count()) as pool:
+        for batch_result in tqdm(pool.imap_unordered(
+                compute_edge_batch,
+                map(lambda x: (user_subreddits, x), chunked_iterable(user_pairs, 1000000))),
+                desc="Computing edges"):
+            for key, val in batch_result.items():
+                all_edges[key] += val
+    return all_edges
 
 
 def save_filtered_cascades(path, filtered_cascades):
@@ -121,8 +223,11 @@ def main():
 
     exclude_subreddits = load_exclude_list(args.exclude_subreddits)
 
+    start_date = datetime(2023, 1, 1)  # Example start date
+    end_date = datetime(2023, 12, 31)  # Example end date
+
     cascades, user_counts = load_cascades(
-        args.cascades, args.min_cascade_size, args.max_cascade_size
+        args.cascades, args.min_cascade_size, args.max_cascade_size, start_date=start_date, end_date=end_date
     )
 
     initial_valid_users = {u for u, c in user_counts.items() if c >= args.min_cascade_count}
@@ -132,6 +237,7 @@ def main():
     )
 
     final_valid_users = set(user_subreddits.keys())
+    logging.info(f"Final valid users: {len(final_valid_users)}")
 
     filtered_cascades = filter_cascades(cascades, final_valid_users, args.min_cascade_size, args.max_cascade_size)
 
