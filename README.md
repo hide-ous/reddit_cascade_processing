@@ -66,8 +66,8 @@ Process Reddit archives to format information cascade data.
      - `author_subreddits.jsonl`
    - output: 
    - `science_cascades_filtered.jsonl`: cleaned cascades with only valid users.
-   - `science_edgelist.jsonl` (FIXME: should have been a csv)
-     - format: csv
+   - `science_edgelist.csv` 
+     - format:
     ```csv
     source,target,weight
     asd,qwe,37
@@ -80,12 +80,12 @@ Process Reddit archives to format information cascade data.
     --min_cascade_count=5 \
     --exclude_subreddits science \
     --filtered_cascades_out .\data\processed\science_cascades_filtered.jsonl \
-    --edge_list_out .\data\processed\science_edgelist.jsonl
+    --edge_list_out .\data\processed\science_edgelist.csv
     ```
 6. Extract the network's backbone
    - applies noise-corrected disparity filtering to the edgelist
-   - input: `science_edgelist.jsonl`
-   - output: `science_edgelist_disparity.jsonl`
+   - input: `science_edgelist.csv`
+   - output: `science_edgelist_disparity.csv`
    ```shell
    venv/bin/python -u reddit_cascade_processing/disparity_filter.py data/processed/science_edgelist.jsonl data/processed/science_edgelist_disparity.jsonl --alpha=0.1 --filter=ncdf --processes=46
    ```
