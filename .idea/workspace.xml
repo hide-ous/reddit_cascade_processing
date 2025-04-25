@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="+ disparity filter the network">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="* noise-corrected disparity filter">
       <change beforePath="$PROJECT_DIR$/reddit_cascade_processing/disparity_filter.py" beforeDir="false" afterPath="$PROJECT_DIR$/reddit_cascade_processing/disparity_filter.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -87,7 +85,7 @@
       <option name="presentableId" value="Default" />
       <updated>1745488370947</updated>
       <workItem from="1745488371823" duration="991000" />
-      <workItem from="1745490160482" duration="24961000" />
+      <workItem from="1745490160482" duration="25156000" />
     </task>
     <task id="LOCAL-00001" summary="+ initial commit">
       <option name="closed" value="true" />
@@ -185,7 +183,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745586319175</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="* noise-corrected disparity filter">
+      <option name="closed" value="true" />
+      <created>1745588702982</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1745588702982</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -214,6 +220,7 @@
     <MESSAGE value="* bugfix logging" />
     <MESSAGE value="+ extract network and filter cascades" />
     <MESSAGE value="+ disparity filter the network" />
-    <option name="LAST_COMMIT_MESSAGE" value="+ disparity filter the network" />
+    <MESSAGE value="* noise-corrected disparity filter" />
+    <option name="LAST_COMMIT_MESSAGE" value="* noise-corrected disparity filter" />
   </component>
 </project>

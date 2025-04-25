@@ -85,7 +85,80 @@ def disparity_filter_ncdf_parallel(edgelist_df, alpha_threshold=0.05, num_proces
     backbone_df = pd.DataFrame(backbone_list)
 
     return backbone_df
+def process_node(node, edgelist_df, alpha_threshold):
+    """
+    Applies the disparity filter to the edges connected to a single node (for undirected networks).
 
+    Args:
+        node (str): The node being processed.
+        edgelist_df (pd.DataFrame): DataFrame with columns 'source', 'target', and 'weight'.
+        alpha_threshold (float): Significance level for the filter.
+
+    Returns:
+        list: A list of tuples representing the backbone edges connected to the node
+              (sorted node pair to avoid duplicates).
+    """
+    backbone_edges = set()  # Use a set to automatically handle duplicates
+    neighbors_df = edgelist_df[(edgelist_df['source'] == node) | (edgelist_df['target'] == node)].copy()
+    if neighbors_df.empty:
+        return list(backbone_edges)
+
+    # Calculate degree and total weight for the node
+    degree = len(neighbors_df)
+    total_weight = neighbors_df['weight'].sum()
+
+    if total_weight == 0 or degree < 2:
+        return list(backbone_edges)
+
+    # Calculate alpha for each edge connected to the node
+    neighbors_df['alpha'] = neighbors_df.apply(
+        lambda row: (row['weight'] / total_weight) ** (degree - 1), axis=1
+    )
+
+    # Identify backbone edges based on alpha threshold
+    backbone_neighbors = neighbors_df[neighbors_df['alpha'] < alpha_threshold]
+
+    # Add backbone edges (as sorted tuples)
+    for index, row in backbone_neighbors.iterrows():
+        u = row['source']
+        v = row['target']
+        weight = row['weight']
+        # Ensure consistent representation for undirected edges
+        sorted_edge = tuple(sorted((u, v)))
+        backbone_edges.add((sorted_edge[0], sorted_edge[1], weight))
+
+    return list(backbone_edges)
+
+def disparity_filter_parallel(edgelist_df, alpha_threshold=0.05, num_processes=None):
+    """
+    Applies the disparity filter to a weighted edgelist in parallel (for undirected networks).
+
+    Args:
+        edgelist_df (pd.DataFrame): DataFrame with columns 'source', 'target', and 'weight'.
+        alpha_threshold (float, optional): Significance level for the filter. Defaults to 0.05.
+        num_processes (int, optional): Number of processes to use for parallelization.
+                                       Defaults to the number of CPU cores.
+
+    Returns:
+        pd.DataFrame: DataFrame containing the unique backbone edges.
+    """
+    unique_nodes = pd.concat([edgelist_df['source'], edgelist_df['target']]).unique()
+    if num_processes is None:
+        num_processes = cpu_count()
+
+    with Pool(processes=num_processes) as pool:
+        results = pool.starmap(process_node, [(node, edgelist_df, alpha_threshold) for node in unique_nodes])
+
+    # Flatten the list of sets and create the backbone DataFrame
+    backbone_edges = set()
+    for sublist in results:
+        for edge in sublist:
+            backbone_edges.add(edge)
+
+    backbone_list = [{'source': u, 'target': v, 'weight': weight} for u, v, weight in backbone_edges]
+    backbone_df = pd.DataFrame(backbone_list)
+
+    return backbone_df
 def compute_backbone_network(csv_path, alpha=0.05, num_processes=None, filter_type='disparity'):
     """
     Reads a weighted edgelist from a CSV file and computes the backbone network using the specified filter.
