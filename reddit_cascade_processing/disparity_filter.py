@@ -100,6 +100,7 @@ def compute_backbone_network_numpy(csv_path, alpha=0.05, num_processes=None, fil
     return backbone_df
 
 if __name__ == "__main__":
+    #  venv/bin/python -u reddit_cascade_processing/disparity_filter.py data/processed/conspiracy_edgelist.jsonl data/processed/conspiracy_edgelist_disparity.jsonl --alpha=0.1 --filter=ncdf --processes=46
     parser = argparse.ArgumentParser(description="Compute backbone network with batched parallel processing (NumPy optimized) with timer and progress bar.")
     parser.add_argument("input_file", help="Path to input CSV.")
     parser.add_argument("output_file", help="Path to output CSV.")

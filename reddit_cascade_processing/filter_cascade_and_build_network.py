@@ -223,8 +223,8 @@ def main():
 
     exclude_subreddits = load_exclude_list(args.exclude_subreddits)
 
-    start_date = datetime(2023, 1, 1)  # Example start date
-    end_date = datetime(2023, 12, 31)  # Example end date
+    start_date = datetime(2023, 1, 1)  # TODO: make it user-definable
+    end_date = datetime(2023, 12, 31)
 
     cascades, user_counts = load_cascades(
         args.cascades, args.min_cascade_size, args.max_cascade_size, start_date=start_date, end_date=end_date
