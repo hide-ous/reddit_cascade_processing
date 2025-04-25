@@ -87,6 +87,6 @@ Process Reddit archives to format information cascade data.
    - input: `science_edgelist.csv`
    - output: `science_edgelist_disparity.csv`
    ```shell
-   venv/bin/python -u reddit_cascade_processing/disparity_filter.py data/processed/science_edgelist.jsonl data/processed/science_edgelist_disparity.jsonl --alpha=0.1 --filter=ncdf --processes=46
+   venv/bin/python -u reddit_cascade_processing/disparity_filter.py data/processed/science_edgelist.csv data/processed/science_edgelist_disparity.csv --alpha=0.1 --filter=ncdf --processes=46
    ```
 
