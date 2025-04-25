@@ -14,14 +14,32 @@ Process Reddit archives to format information cascade data.
 - `author_subreddit_counts.py`	Aggregates subreddit contributions for a list of users across comments and submissions folders.
 - `generate_cascades.py`	(Implied) Produces cascades from raw comment/submission files. Not shown here but assumed as a dependency.
 - `bots.txt`	List of bot usernames to exclude.
-README.md	Project documentation.
-## Commands 
-1. Extract Unique Authors from Cascades
+
+## Commands
+
+1. Extract only some fields from a subreddit's archive
+    - input: a subreddit's archive, e.g., `science_submissions.zst`, such as those from this URL: https://academictorrents.com/details/1614740ac8c94505e4ecb9d88be8bed7b6afddd4 (all subreddits, 2005 to 2024 included)
+    - output: `science_submissions.jsonl` 
+      - format `{"author": "shaunc", "id": "mp0o", "link_id": null, "created_utc": 1161180895}`
 ```bash
-python extract_authors.py --cascades cascades.jsonl --output authors.txt
+python -u reddit_cascade_processing\extract.py -f author id link_id created_utc -o .\data\interim\science_comments.jsonl .\data\external\subreddits24\science_comments.zst
 ```
 
-2. Generate Subreddit Activity Counts
+2. Extract and format all cascades
+   - removes ill-formatted contributions
+   - removes `[removed]` and `[deleted]` authors
+   - removes bot authors from a list
+   - optionally, keeps only the first appearance of an author in a cascade
+   - keeps only cascades between a minimum and maximum length, e.g., 5--100
+```bash
+python -u .\reddit_cascade_processing\filter_and_format.py -b .\data\external\botnames.txt --dedup_authors --min_len=5 --max_len=100 -o .\data\processed\science_cascades.jsonl .\data\interim\science_comments.jsonl .\data\interim\science_submissions.jsonl
+```
+    - input: a pair of files for commments and submissions respectively for a subreddit, e.g., `science_comments.jsonl` and `science_submissions.jsonl` 
+    - output: `science_cascades.jsonl` 
+      - format `{"t3_123123": [["asd", 1734763627], ["qwe", 1734764088], ...]}`
+3. Extract unique authors
+
+3. 
 ```bash
 python author_subreddit_counts.py \
   --authors authors.txt \

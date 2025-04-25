@@ -4,12 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="+ extract network and filter cascades">
-      <change afterPath="$PROJECT_DIR$/reddit_cascade_processing/disparity_filter.py" afterDir="false" />
+    <list default="true" id="831249ab-0024-4a07-9785-abec76f778e9" name="Changes" comment="+ disparity filter the network">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/reddit_cascade_processing/filter_cascade_and_build_network.py" beforeDir="false" afterPath="$PROJECT_DIR$/reddit_cascade_processing/filter_cascade_and_build_network.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/reddit_cascade_processing/disparity_filter.py" beforeDir="false" afterPath="$PROJECT_DIR$/reddit_cascade_processing/disparity_filter.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -89,7 +87,7 @@
       <option name="presentableId" value="Default" />
       <updated>1745488370947</updated>
       <workItem from="1745488371823" duration="991000" />
-      <workItem from="1745490160482" duration="22811000" />
+      <workItem from="1745490160482" duration="24961000" />
     </task>
     <task id="LOCAL-00001" summary="+ initial commit">
       <option name="closed" value="true" />
@@ -179,7 +177,15 @@
       <option name="project" value="LOCAL" />
       <updated>1745576990431</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="+ disparity filter the network">
+      <option name="closed" value="true" />
+      <created>1745586319175</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1745586319175</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -207,6 +213,7 @@
     <MESSAGE value="* bugfix zst" />
     <MESSAGE value="* bugfix logging" />
     <MESSAGE value="+ extract network and filter cascades" />
-    <option name="LAST_COMMIT_MESSAGE" value="+ extract network and filter cascades" />
+    <MESSAGE value="+ disparity filter the network" />
+    <option name="LAST_COMMIT_MESSAGE" value="+ disparity filter the network" />
   </component>
 </project>
