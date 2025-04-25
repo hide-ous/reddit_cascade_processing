@@ -31,14 +31,20 @@ python -u reddit_cascade_processing\extract.py -f author id link_id created_utc 
    - removes bot authors from a list
    - optionally, keeps only the first appearance of an author in a cascade
    - keeps only cascades between a minimum and maximum length, e.g., 5--100
+   - input: a pair of files for commments and submissions respectively for a subreddit, e.g., `science_comments.jsonl` and `science_submissions.jsonl` 
+   - output: `science_cascades.jsonl` 
+      - format `{"t3_123123": [["asd", 1734763627], ["qwe", 1734764088], ...]}`
 ```bash
 python -u .\reddit_cascade_processing\filter_and_format.py -b .\data\external\botnames.txt --dedup_authors --min_len=5 --max_len=100 -o .\data\processed\science_cascades.jsonl .\data\interim\science_comments.jsonl .\data\interim\science_submissions.jsonl
 ```
-    - input: a pair of files for commments and submissions respectively for a subreddit, e.g., `science_comments.jsonl` and `science_submissions.jsonl` 
-    - output: `science_cascades.jsonl` 
-      - format `{"t3_123123": [["asd", 1734763627], ["qwe", 1734764088], ...]}`
-3. Extract unique authors
 
+4. Extract unique authors
+   - Finds all unique author in one or more cascade files
+   - input: cascade files 
+   - output: `authors.txt` (newline delimited)
+```bash
+python -u .\reddit_cascade_processing\extract_unique_authors.py -o .\data\interim\authors.txt .\data\processed\conspiracy_cascades.jsonl .\data\processed\science_cascades.jsonl
+```
 3. 
 ```bash
 python author_subreddit_counts.py \
