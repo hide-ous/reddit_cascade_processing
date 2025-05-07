@@ -17,7 +17,7 @@ def parse_args():
     parser.add_argument("--subreddit_counts", required=True, help="Path to author subreddit counts per year (JSONL).")
     parser.add_argument("--min_cascade_count", type=int, required=True, help="Minimum number of cascades a user must appear in to be included.")
     parser.add_argument("--min_cascade_size", type=int, default=5, help="Minimum cascade size.")
-    parser.add_argument("--max_cascade_size", type=int, default=100, help="Maximum cascade size.")
+    parser.add_argument("--max_cascade_size", type=int, default=500, help="Maximum cascade size.")
     parser.add_argument("--min_subreddits", type=int, default=1, help="Minimum number of subreddits a user must appear in.")
     parser.add_argument("--year_start", type=int, default=None, help="Optional: Filter subreddit counts from this year.")
     parser.add_argument("--year_end", type=int, default=None, help="Optional: Filter subreddit counts up to this year.")
